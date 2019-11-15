@@ -11,8 +11,8 @@ import sys
 from imutils.video import FPS
 import json
 
-from trackers.tracker import SiamFC_Tracker, SiamRPN_Tracker, SiamMask_Tracker
-from benchmark.bench_utils.bbox_helper import cxy_wh_2_rect, xyxy_to_xywh
+from thor.trackers.tracker import SiamFC_Tracker, SiamRPN_Tracker, SiamMask_Tracker
+from thor.benchmark.bench_utils.bbox_helper import cxy_wh_2_rect, xyxy_to_xywh
 
 # constants
 BRIGHTGREEN = [102, 255, 0]
