@@ -45,6 +45,14 @@ class Tracker():
         self.temp_mem.update(im, state['crop'], state['target_pos'], state['target_sz'], i)
         return state
 
+    def track_no_update(self, im, state):
+        state = self.track_func(state, im)
+        return state
+    
+    def update_mem(self, im, state, i):
+        self.temp_mem.update(im, state['crop'], state['target_pos'], state['target_sz'], i)
+
+
 class SiamFC_Tracker(Tracker):
     def __init__(self, cfg):
         super(SiamFC_Tracker, self).__init__()
