@@ -64,7 +64,7 @@ class THOR_Wrapper():
             # reinitialize long term only at the beginning of the episode
             self.lt_module.update(temp, div_scale=0)
 
-    def update(self, im, curr_crop, pos, sz):
+    def update(self, im, curr_crop, pos, sz, i):
         """
         update the short-term and long-term module and
         update the shown templates and activations (score_viz)
@@ -81,9 +81,9 @@ class THOR_Wrapper():
                 self.st_module.fill(temp)
 
         if self._cfg.viz:
-            self._show_modulate(torch_to_img(curr_crop), self.score_viz)
-            self._show_templates('st')
-            self._show_templates('lt')
+            self._show_modulate(torch_to_img(curr_crop), self.score_viz, i)
+            self._show_templates('st', i)
+            self._show_templates('lt', i)
 
     def crop_to_mem(self, crop):
         """
@@ -114,14 +114,14 @@ class THOR_Wrapper():
 
         return (best_lt if self._curr_type=='lt' else best_st), score[best_lt]
 
-    def _show_templates(self, mode='lt'):
+    def _show_templates(self, mode='lt', i=0):
         if mode=='st' and not self._cfg.K_st: return
         mem = self.st_module if mode=='st' else self.lt_module
         y_plot = 50 if mode=='st' else 300
 
         temp_canvas = mem.canvas.copy()
-        cv2.imshow(f"Templates {mode}", temp_canvas)
-        cv2.moveWindow(f"Templates {mode}", 1200, y_plot)
+        window_name = f"Templates {mode} " + str(i)
+        cv2.imshow(window_name, temp_canvas)
 
     @staticmethod
     def get_IoU(pos_1, sz_1, pos_2, sz_2):
@@ -153,7 +153,7 @@ class THOR_Wrapper():
         return score, score_mean_norm
 
     @staticmethod
-    def _show_modulate(im, score_viz):
+    def _show_modulate(im, score_viz, i):
         """
         show the current activations on top of the current crop
         """
@@ -170,8 +170,8 @@ class THOR_Wrapper():
         # show the image
         overlayed_im = cv2.addWeighted(im, 0.8, im_color, 0.7, 0)
         canvas[:, :im.shape[1], :] = overlayed_im
-        cv2.imshow('modulated', canvas)
-        cv2.moveWindow('modulated', 1200, 800)
+        window_name = "modulated " + str(i)
+        cv2.imshow(window_name, canvas)
 
     @abc.abstractmethod
     def custom_forward(self, x):

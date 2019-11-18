@@ -40,9 +40,9 @@ class Tracker():
         self.temp_mem.setup(im, target_pos, target_sz)
         return state
 
-    def track(self, im, state):
+    def track(self, im, state, i):
         state = self.track_func(state, im)
-        self.temp_mem.update(im, state['crop'], state['target_pos'], state['target_sz'])
+        self.temp_mem.update(im, state['crop'], state['target_pos'], state['target_sz'], i)
         return state
 
 class SiamFC_Tracker(Tracker):

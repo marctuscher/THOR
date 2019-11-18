@@ -24,8 +24,8 @@
       "modulate": true,
       "dilation": 10,
       "context_temp": 0.5,
-      "viz": false,
-      "verbose": false,
+      "viz": true,
+      "verbose": true,
       "vanilla": false
     }
 }
