@@ -25,7 +25,7 @@
       "dilation": 10,
       "context_temp": 0.5,
       "viz": true,
-      "verbose": true,
+      "verbose": false,
       "vanilla": false
     }
 }

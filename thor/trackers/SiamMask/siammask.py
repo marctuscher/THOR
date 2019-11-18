@@ -58,7 +58,7 @@ def SiamMask_init(im, target_pos, target_sz, model, hp=None):
     state['target_sz'] = target_sz
     return state
 
-def SiamMask_track(state, im, temp_mem):
+def SiamMask_track(state, im, temp_mem, lt=False):
     p = state['p']
     avg_chans = state['avg_chans']
     window = state['window']
@@ -83,7 +83,7 @@ def SiamMask_track(state, im, temp_mem):
     # track
     target_pos, target_sz, score, best_id = temp_mem.batch_evaluate(x_crop.to(dev), old_pos,
                                                                 old_sz, window,
-                                                                scale_x, p)
+                                                                scale_x, p, lt=lt)
 
     # mask refinement
     best_pscore_id_mask = np.unravel_index(best_id, (5, p.score_size, p.score_size))

@@ -45,8 +45,8 @@ class Tracker():
         self.temp_mem.update(im, state['crop'], state['target_pos'], state['target_sz'], i)
         return state
 
-    def track_no_update(self, im, state):
-        state = self.track_func(state, im)
+    def track_no_update(self, im, state, lt=False):
+        state = self.track_func(state, im, lt=lt)
         return state
     
     def update_mem(self, im, state, i):
@@ -112,5 +112,5 @@ class SiamMask_Tracker(Tracker):
     def init_func(self, im, pos, sz):
         return SiamMask_init(im, pos, sz, self.model, self.cfg['tracker'])
 
-    def track_func(self, state, im):
-        return SiamMask_track(state, im, self.temp_mem)
+    def track_func(self, state, im, lt=False):
+        return SiamMask_track(state, im, self.temp_mem, lt=lt)

@@ -460,20 +460,25 @@ class THOR_SiamMask(THOR_Wrapper):
         temp['compare'] = temp['kernel'] * torch.Tensor(win).to(self.device)
         return temp
 
-    def custom_forward(self, x):
-        self._net.zf = torch.cat(list(self.st_module.templates['kernel']) + \
-                                 list(self.lt_module.templates['kernel']))
+    def custom_forward(self, x, lt=False):
+        if lt:
+            self._net.zf = torch.cat(list(self.lt_module.templates['kernel']))
+        else:
+            self._net.zf = torch.cat(list(self.st_module.templates['kernel']) + \
+                                    list(self.lt_module.templates['kernel']))
         pred_cls, pred_loc, _ = self._net.track_mask(x)
         return pred_loc, pred_cls
 
-    def batch_evaluate(self, crop, pos, size, window, scale_x, p):
+    def batch_evaluate(self, crop, pos, size, window, scale_x, p, lt=False):
         """
         adapted from SiamRPNs tracker_evaluate
         """
-        delta, score = self.custom_forward(crop)
+        delta, score = self.custom_forward(crop, lt=lt)
 
         out_sz = score.shape[-2:]
         batch_sz = self._mem_len_total
+        if lt:
+            batch_sz -= len(self.st_module)
 
         delta = delta.contiguous().view(batch_sz, 4, -1).data.cpu().numpy()
         score = F.softmax(score.contiguous().view(batch_sz, 2, -1), dim=1).data[:, 1, :].cpu().numpy()
@@ -510,8 +515,11 @@ class THOR_SiamMask(THOR_Wrapper):
         pscore = pscore * (1 - p.window_influence) + window * p.window_influence
 
         # mediating
+        mem_len = self._mem_len_total
+        if lt:
+            mem_len -= len(self.st_module)
         if self._cfg.modulate:
-            pscore, self.score_viz = self.modulate(pscore, self._mem_len_total, out_sz)
+            pscore, self.score_viz = self.modulate(pscore, mem_len, out_sz)
 
         # target regression
         best_pscore_id = np.argmax(pscore, axis=1)
