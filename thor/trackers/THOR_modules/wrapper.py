@@ -98,7 +98,7 @@ class THOR_Wrapper():
 
         return temp
 
-    def _get_best_temp(self, pos, sz, score):
+    def _get_best_temp(self, pos, sz, score, lt=False):
         """
         determine the best template and return the prediction and the
         score of the best long-term template
@@ -111,6 +111,10 @@ class THOR_Wrapper():
         # calculate iou and switch to lt if iou too low
         iou = self.get_IoU(pos.T[best_st], sz.T[best_st], pos.T[best_lt], sz.T[best_lt])
         self._curr_type = 'lt' if iou < self._cfg.iou_tresh else 'st'
+
+        # choose lt if wanted
+        if lt:
+            self._curr_type = 'lt'
 
         return (best_lt if self._curr_type=='lt' else best_st), score[best_lt]
 
@@ -473,12 +477,10 @@ class THOR_SiamMask(THOR_Wrapper):
         """
         adapted from SiamRPNs tracker_evaluate
         """
-        delta, score = self.custom_forward(crop, lt=lt)
+        delta, score = self.custom_forward(crop, lt=False)
 
         out_sz = score.shape[-2:]
         batch_sz = self._mem_len_total
-        if lt:
-            batch_sz -= len(self.st_module)
 
         delta = delta.contiguous().view(batch_sz, 4, -1).data.cpu().numpy()
         score = F.softmax(score.contiguous().view(batch_sz, 2, -1), dim=1).data[:, 1, :].cpu().numpy()
@@ -516,8 +518,6 @@ class THOR_SiamMask(THOR_Wrapper):
 
         # mediating
         mem_len = self._mem_len_total
-        if lt:
-            mem_len -= len(self.st_module)
         if self._cfg.modulate:
             pscore, self.score_viz = self.modulate(pscore, mem_len, out_sz)
 
@@ -539,7 +539,7 @@ class THOR_SiamMask(THOR_Wrapper):
         best_scores = pscore[np.arange(batch_sz), best_pscore_id]
 
         # determine the currently best template
-        best_temp, lt_score = self._get_best_temp(target_pos, target_sz, best_scores)
+        best_temp, lt_score = self._get_best_temp(target_pos, target_sz, best_scores, lt=lt)
         self._net.best_temp = best_temp
 
         return np.squeeze(target_pos[:, best_temp]), np.squeeze(target_sz[:, best_temp]), \
