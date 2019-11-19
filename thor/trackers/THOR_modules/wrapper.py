@@ -464,12 +464,9 @@ class THOR_SiamMask(THOR_Wrapper):
         temp['compare'] = temp['kernel'] * torch.Tensor(win).to(self.device)
         return temp
 
-    def custom_forward(self, x, lt=False):
-        if lt:
-            self._net.zf = torch.cat(list(self.lt_module.templates['kernel']))
-        else:
-            self._net.zf = torch.cat(list(self.st_module.templates['kernel']) + \
-                                    list(self.lt_module.templates['kernel']))
+    def custom_forward(self, x):
+        self._net.zf = torch.cat(list(self.st_module.templates['kernel']) + \
+                                list(self.lt_module.templates['kernel']))
         pred_cls, pred_loc, _ = self._net.track_mask(x)
         return pred_loc, pred_cls
 
@@ -477,7 +474,7 @@ class THOR_SiamMask(THOR_Wrapper):
         """
         adapted from SiamRPNs tracker_evaluate
         """
-        delta, score = self.custom_forward(crop, lt=False)
+        delta, score = self.custom_forward(crop)
 
         out_sz = score.shape[-2:]
         batch_sz = self._mem_len_total
