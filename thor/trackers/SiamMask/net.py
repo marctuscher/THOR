@@ -68,7 +68,6 @@ def conv2d_dw_group(x, kernel):
     kernel = kernel.view(batch*channel, 1, kernel.size(2), kernel.size(3))  # (b*c) * 1 * H * W
     out = F.conv2d(x, kernel, groups=batch*channel)
     out = out.view(batch, channel, out.size(2), out.size(3))
-
     return out
 
 class DepthCorr(nn.Module):

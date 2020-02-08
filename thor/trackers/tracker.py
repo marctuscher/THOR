@@ -5,9 +5,10 @@
 # --------------------------------------------------------
 
 from os.path import dirname, abspath
-from ipdb import set_trace
 import torch
 from thor.trackers.THOR_modules.wrapper import THOR_SiamFC, THOR_SiamRPN, THOR_SiamMask
+
+from pathlib import Path
 
 # SiamFC import
 from thor.trackers.SiamFC.net import SiamFC
@@ -21,6 +22,9 @@ from thor.trackers.SiamRPN.siamrpn import SiamRPN_init, SiamRPN_track
 from thor.trackers.SiamMask.net import SiamMaskCustom
 from thor.trackers.SiamMask.siammask import SiamMask_init, SiamMask_track
 from thor.trackers.SiamMask.utils.load_helper import load_pretrain
+import numpy as np
+
+from torch.utils.tensorboard import SummaryWriter
 
 class Tracker():
     def __init__(self):
@@ -45,12 +49,12 @@ class Tracker():
         self.temp_mem.update(im, state['crop'], state['target_pos'], state['target_sz'], i)
         return state
 
-    def track_no_update(self, im, state, lt=False):
-        state = self.track_func(state, im, lt=lt)
+    def track_no_update(self, im, state,i=0, lt=False):
+        state = self.track_func(state, im,i=i,lt=lt)
         return state
     
     def update_mem(self, im, state, i):
-        self.temp_mem.update(im, state['crop'], state['target_pos'], state['target_sz'], i)
+        return self.temp_mem.update(im, state['crop'], state['target_pos'], state['target_sz'], i)
 
 
 class SiamFC_Tracker(Tracker):
@@ -104,6 +108,7 @@ class SiamMask_Tracker(Tracker):
         model_path = dirname(abspath(__file__)) + '/SiamMask/model.pth'
         model = SiamMaskCustom(anchors=cfg['anchors'])
         model = load_pretrain(model, model_path)
+
         self.model = model.eval().to(self.device)
 
         # set up template memory
@@ -112,5 +117,5 @@ class SiamMask_Tracker(Tracker):
     def init_func(self, im, pos, sz):
         return SiamMask_init(im, pos, sz, self.model, self.cfg['tracker'])
 
-    def track_func(self, state, im, lt=False):
-        return SiamMask_track(state, im, self.temp_mem, lt=lt)
+    def track_func(self, state, im,i=0,lt=False,):
+        return SiamMask_track(state, im, self.temp_mem,i=i,lt=lt)

@@ -5,6 +5,15 @@
       "base_size": 8,
       "out_size": 127,
       "seg_thr": 0.3,
+      "penalty_k": 0.087875, 
+      "lr": 0.651924
+    },
+    "tracker_running": {
+      "window_influence": 0.42,
+      "instance_size": 255,
+      "base_size": 8,
+      "out_size": 127,
+      "seg_thr": 0.3,
       "penalty_k": 0.087875,
       "lr": 0.651924
     },
@@ -27,6 +36,7 @@
       "viz": true,
       "verbose": false,
       "vanilla": false
-    }
+    },
+    "log_dir": "logs"
 }
 

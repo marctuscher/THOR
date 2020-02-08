@@ -18,7 +18,7 @@ def im_to_torch(img):
 
 
 
-def get_subwindow_tracking(im, pos, model_sz, original_sz, avg_chans, out_mode='torch'):
+def get_subwindow_tracking(im, pos, model_sz, original_sz, avg_chans,out_mode='torch'):
     if isinstance(pos, float):
         pos = [pos, pos]
     sz = original_sz
@@ -58,5 +58,5 @@ def get_subwindow_tracking(im, pos, model_sz, original_sz, avg_chans, out_mode='
         im_patch = cv2.resize(im_patch_original, (model_sz, model_sz))
     else:
         im_patch = im_patch_original
-
+    cv2.imshow("patch", im_patch_original)
     return im_to_torch(im_patch)

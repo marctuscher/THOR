@@ -283,6 +283,7 @@ class LT_Module(TemplateModule):
             self._update_gram_matrix(curr_sims=curr_sims, self_sim=self_sim, idx=throwaway_idx)
             if self.viz:
                 self._update_canvas(temp=temp, idx=throwaway_idx)
+        return throwaway_idx
 
 class Dummy_Module():
     def __init__(self, template_keys):
